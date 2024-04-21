@@ -25,19 +25,17 @@ import androidx.compose.ui.unit.sp
 import com.topic3.android.reddit.R
 import com.topic3.android.reddit.domain.model.PostModel
 import com.topic3.android.reddit.domain.model.PostModel.Companion.DEFAULT_POST
-
 @Composable
 fun TextPost(
-post: PostModel,
-onJoinButtonClick: (Boolean) -> Unit = {}
+    post: PostModel,
+    onJoinButtonClick: (Boolean) -> Unit = {}
 ) {
     Post(post, onJoinButtonClick) { TextContent(post.text) }
 }
-
 @Composable
 fun ImagePost(
-post: PostModel,
-onJoinButtonClick: (Boolean) -> Unit = {}
+    post: PostModel,
+    onJoinButtonClick: (Boolean) -> Unit = {}
 ) {
     Post(post, onJoinButtonClick) { ImageContent(post.image!!) }
 }
@@ -49,10 +47,11 @@ fun Post(post: PostModel,
     Card(shape = MaterialTheme.shapes.large) {
         Column(
             modifier = Modifier.padding(
-                top = 8.dp, bottom = 8.dp
+                top = 8.dp,
+                bottom = 8.dp
             )
         ) {
-            Header(post)
+            Header(post, onJoinButtonClick)
             Spacer(modifier = Modifier.height(4.dp))
             content.invoke()
             Spacer(modifier = Modifier.height(8.dp))
