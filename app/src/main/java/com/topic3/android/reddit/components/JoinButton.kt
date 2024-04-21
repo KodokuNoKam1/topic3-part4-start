@@ -1,4 +1,5 @@
 package com.topic3.android.reddit.components
+import androidx.compose.animation.animateColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,31 +22,75 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.*
 import androidx.compose.material.Icon
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.Text
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
+
 @Composable
 fun JoinButton(onClick: (Boolean) -> Unit = {}){
     var buttonState: JoinButtonState
             by remember { mutableStateOf(JoinButtonState.IDLE) }
     val shape = RoundedCornerShape(corner = CornerSize(12.dp))
-
-
-    val buttonBackgroundColor: Color =
-        if (buttonState == JoinButtonState.PRESSED)
-            Color.White else
-            Color.Blue
+    val transition = updateTransition(
+        targetState = buttonState,
+        label = "JoinButtonTransition"
+    )
+    val duration = 600
+    val buttonBackgroundColor: Color by transition.animateColor (
+        transitionSpec = { tween(duration) },
+        label = "Button Background Color"
+    ) { state ->
+        when (state) {
+            JoinButtonState.IDLE -> Color.Blue
+            JoinButtonState.PRESSED -> Color.White
+        }
+    }
+    val buttonWidth: Dp
+            by transition.animateDp(
+                transitionSpec = { tween(duration) },
+                label = "Button Width"
+            ) { state ->
+                when (state){
+                    JoinButtonState.IDLE -> 70.dp
+                    JoinButtonState.PRESSED -> 32.dp
+                }
+            }
+    val textMaxWidth: Dp
+            by transition.animateDp(
+                transitionSpec = { tween(duration) },
+                label = "Text Max Width"
+            ) {state ->
+                when (state){
+                    JoinButtonState.IDLE -> 40.dp
+                    JoinButtonState.PRESSED -> 0.dp
+                }
+            }
     val iconAssert: ImageVector =
         if (buttonState == JoinButtonState.PRESSED)
             Icons.Default.Check else
             Icons.Default.Add
-    val iconTintColor: Color =
-        if(buttonState == JoinButtonState.PRESSED)
-            Color.Blue else
-            Color.White
+    val iconTintColor: Color
+            by transition.animateColor(
+                transitionSpec = { tween(duration)},
+                label = "Icon Tint Color"
+            ){state ->
+                when (state){
+                    JoinButtonState.IDLE -> Color.White
+                    JoinButtonState.PRESSED -> Color.Blue
+                }
+            }
     Box(
         modifier = Modifier
             .clip(shape)
             .border(width = 1.dp, color = Color.Blue, shape = shape)
             .background(color = buttonBackgroundColor)
-            .size(width = 40.dp, height = 24.dp)
+            .size(width = buttonWidth, height = 24.dp)
             .clickable(onClick = {
                 buttonState =
                     if(buttonState == JoinButtonState.IDLE) {
@@ -58,14 +103,31 @@ fun JoinButton(onClick: (Boolean) -> Unit = {}){
             }),
         contentAlignment = Alignment.Center
     ){
-        Icon(
-            imageVector = iconAssert,
-            contentDescription = "Plus Icon",
-            tint = iconTintColor,
-            modifier = Modifier.size(16.dp)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Icon(
+                imageVector = iconAssert,
+                contentDescription = "Plus Icon",
+                tint = iconTintColor,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = "Join",
+                color = Color.White,
+                fontSize = 14.sp,
+                maxLines = 1,
+                modifier = Modifier
+                    .widthIn(
+                        min = 0.dp,
+                        max = textMaxWidth
+                    )
+            )
+
+        }
     }
 }
+
 enum class JoinButtonState{
     IDLE, PRESSED
 }
